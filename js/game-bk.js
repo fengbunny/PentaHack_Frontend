@@ -22,10 +22,6 @@ var ennemiesPool = [];
 var particlesPool = [];
 var particlesInUse = [];
 
-//piano var 
-var wKeyIndex=0;
-var bKeyIndex=0;
-
 function resetGame(){
   game = {speed:0,
           initSpeed:.00035,
@@ -80,7 +76,7 @@ function resetGame(){
           distanceForCoinsSpawn:100,
 
           ennemyDistanceTolerance:30,
-          ennemyValue:2,
+          ennemyValue:10,
           ennemiesSpeed:.6,
           ennemyLastSpawn:0,
           distanceForEnnemiesSpawn:50,
@@ -686,12 +682,12 @@ EnnemiesHolder.prototype.runEnnemies = function(){
     //var diffPos = ins.mesh.position.clone().sub(ennemy.mesh.position.clone());
     //var d = diffPos.length();
     if (
-      ((ennemy.mesh.position.x < ins.mesh.position.x + 50 - 10 && ennemy.mesh.position.x > ins.mesh.position.x - 50 -10)
-        ||(ins.mesh.position.x < ennemy.mesh.position.x + 50 + 10&& ins.mesh.position.x > ennemy.mesh.position.x -50 +10))
-      &&((ennemy.mesh.position.y < ins.mesh.position.y + 70 -10 && ennemy.mesh.position.y > ins.mesh.position.y - 70 - 10)
-        ||(ins.mesh.position.y < ennemy.mesh.position.y +70  +10&& ins.mesh.position.y > ennemy.mesh.position.y - 70+10))
+      ((ennemy.mesh.position.x < ins.mesh.position.x + 70 && ennemy.mesh.position.x > ins.mesh.position.x - 70)
+        ||(ins.mesh.position.x < ennemy.mesh.position.x + 70 && ins.mesh.position.x > ennemy.mesh.position.x - 70))
+      &&((ennemy.mesh.position.y < ins.mesh.position.y + 70 && ennemy.mesh.position.y > ins.mesh.position.y - 70)
+        ||(ins.mesh.position.y < ennemy.mesh.position.y + 70 && ins.mesh.position.y > ennemy.mesh.position.y - 70))
       &&((ennemy.mesh.position.z < ins.mesh.position.z + 10 && ennemy.mesh.position.z > ins.mesh.position.z - 10)
-        ||(ins.mesh.position.y < ennemy.mesh.position.z + 10 && ins.mesh.position.y > ennemy.mesh.position.y - 10))
+        ||(ins.mesh.position.z < ennemy.mesh.position.z + 10 && ins.mesh.position.z > ennemy.mesh.position.z - 10))
       )
     {
       particlesHolder.spawnParticles(ennemy.mesh.position.clone(), 15, Colors.red, 3);
@@ -701,7 +697,8 @@ EnnemiesHolder.prototype.runEnnemies = function(){
       game.planeCollisionSpeedX = 100 * 0.5;
       game.planeCollisionSpeedY = 100 * 0.5;
       ambientLight.intensity = 2;
-      addEnergy();
+
+      //removeEnergy();
       i--;
     }else if (ennemy.angle > Math.PI){
       ennemiesPool.unshift(this.ennemiesInUse.splice(i,1)[0]);
@@ -767,7 +764,7 @@ ParticlesHolder.prototype.spawnParticles = function(pos, density, color, scale){
 Coin = function(){
   var geom = new THREE.TetrahedronGeometry(5,0);
   var mat = new THREE.MeshPhongMaterial({
-    color:0x000000,
+    color:0x009999,
     shininess:0,
     specular:0xffffff,
 
@@ -791,7 +788,7 @@ CoinsHolder = function (nCoins){
 
 CoinsHolder.prototype.spawnCoins = function(){
 
-  var nCoins = 1 + Math.floor(Math.random()*5);
+  var nCoins = 1 + Math.floor(Math.random()*10);
   var d = game.seaRadius + game.planeDefaultHeight + (-1 + Math.random() * 2) * (game.planeAmpHeight-20);
   var amplitude = 10 + Math.round(Math.random()*10);
   for (var i=0; i<nCoins; i++){
@@ -849,7 +846,7 @@ CoinsHolder.prototype.shotCoin = function(){
         {
         this.coinsPool.unshift(this.coinsInUse.splice(i,1)[0]);
         this.mesh.remove(coin.mesh);
-        particlesHolder.spawnParticles(coin.mesh.position.clone(), 5, 0x000000, .8);
+        particlesHolder.spawnParticles(coin.mesh.position.clone(), 5, 0x009999, .8);
         addEnergy();
         i--;
       }else if (coin.distance > 500){
@@ -886,8 +883,8 @@ CoinsHolder.prototype.rotateCoins = function(){
       ){
       this.coinsPool.unshift(this.coinsInUse.splice(i,1)[0]);
       this.mesh.remove(coin.mesh);
-      particlesHolder.spawnParticles(coin.mesh.position.clone(), 5, 0x000000, .8);
-      removeEnergy();
+      particlesHolder.spawnParticles(coin.mesh.position.clone(), 5, 0x009999, .8);
+      addEnergy();
       i--;
     }else if (coin.angle > Math.PI){
       this.coinsPool.unshift(this.coinsInUse.splice(i,1)[0]);
@@ -1050,12 +1047,10 @@ var Instrument = function(insTp){
   {
     var tmp = new Piano();
     tmp.mesh.scale.set(6,6,6);
-    //tmp.mesh.position.set(80,-90,0);
+    tmp.mesh.position.set(80,-90,0);
     this.mesh.add(tmp.mesh);
     this.instrument = tmp;
   }
-
-  tmp.mesh.position.set(0,-90,0);
 }
 
 Instrument.prototype.update = function(){
@@ -1076,8 +1071,8 @@ Instrument.prototype.update = function(){
   game.planeCollisionSpeedY += (0-game.planeCollisionSpeedY)*deltaTime * 0.03;
   game.planeCollisionDisplacementY += (0-game.planeCollisionDisplacementY)*deltaTime *0.01;
   
+
   this.instrument.update();
-  
 }
 
 function createInstrument(insTp){
@@ -1102,9 +1097,9 @@ var Piano = function(){
 
   this.wkTop = new THREE.Object3D();
 
-  for (var i=0;i<14;i++){
+  for (var i=0;i<26;i++){
     var key = wk.clone();
-    key.position.set(-7+i*1,20,0);
+    key.position.set(-26+i*1,20,0);
     key.castShadow = true;
     key.receiveShadow = true;
     key.geometry.applyMatrix(new THREE.Matrix4().makeScale(1,1,1));
@@ -1125,10 +1120,10 @@ var Piano = function(){
 
   this.bkTop = new THREE.Object3D();
 
-  for (var i=0;i<36;i++){
+  for (var i=0;i<18;i++){
     var key = bk.clone();
-    var locs=[1,2,4,5,6,8,9,11,12,13];
-    key.position.set(-7+locs[i]-bwidth/2,21,0.5);
+    var locs=[1,3,4,6,7,8,10,11,13,14,15,17,18,20,21,22,24,25];
+    key.position.set(-26+locs[i]-bwidth/2,21,0.5);
     key.castShadow = true;
     key.receiveShadow = true;
     key.geometry.applyMatrix(new THREE.Matrix4().makeScale(1,1,1));
@@ -1138,113 +1133,9 @@ var Piano = function(){
   bks.add(this.bkTop);
 
   this.mesh.add(bks);
-
 };
 
-Piano.prototype.updateWks = function(){
-  //*
-  var wks = this.wkTop.children;
-  //*
-  var freq=[261.6,293.7,329.6,349.2,392.0,440.0,493.9,523.3,587.3,659.3,698.5,784.0,880.0,987.8];
-
-  if ((wKeyIndex>0)&&(wKeyIndex<15)){
-    var oldKey = wks[wKeyIndex-1];
-    oldKey.position.z+=0.5;
-  }
-
-  
-  //*/
-  
-  if (wKeyIndex<14){
-    //wKeyIndex=wKeyIndex%14;
-    var key = wks[wKeyIndex];
-    key.position.z-=0.5;
-    //key.position.z++;
-    
-    var Synth = function(audiolet, frequency) {
-        AudioletGroup.call(this, audiolet, 0, 1);
-        // Basic wave
-        this.triangle = new Triangle(audiolet, frequency);
-
-        // Gain envelope
-        this.gain = new Gain(audiolet);
-        this.env = new PercussiveEnvelope(audiolet, 1, 0.1, 0.1,
-            function() {
-                this.audiolet.scheduler.addRelative(0,
-                    this.remove.bind(this));
-            }.bind(this)
-        );
-
-        // Main signal path
-        this.triangle.connect(this.gain);
-        this.gain.connect(this.outputs[0]);
-
-        // Envelope
-        this.env.connect(this.gain, 0, 1);
-    }
-    extend(Synth, AudioletGroup);
-
-    var audiolet=new Audiolet();
-    var synth = new Synth(audiolet, freq[wKeyIndex]);
-    synth.connect(audiolet.output);
-
-  }
-  wKeyIndex++;
-}
-
-Piano.prototype.updateBks = function(){
-  //*
-  var bks = this.bkTop.children;
-  //*
-  var freq=[277.2,311.1,370.0,415.3,466.2,554.4,622.3,740.0,830.6,932.3];
-
-  if ((bKeyIndex>0)&&(bKeyIndex<11)){
-    var oldKey = bks[bKeyIndex-1];
-    oldKey.position.z+=0.5;
-  }
-
-  
-  if (bKeyIndex<10){
-    //bKeyIndex=bKeyIndex%10;
-    var key = bks[bKeyIndex];
-    key.position.z-=0.5;
-    //key.position.z++;
-    
-   
-    var Synth = function(audiolet, frequency) {
-        AudioletGroup.call(this, audiolet, 0, 1);
-        // Basic wave
-        this.triangle = new Triangle(audiolet, frequency);
-
-        // Gain envelope
-        this.gain = new Gain(audiolet);
-        this.env = new PercussiveEnvelope(audiolet, 1, 0.1, 0.1,
-            function() {
-                this.audiolet.scheduler.addRelative(0,
-                    this.remove.bind(this));
-            }.bind(this)
-        );
-
-        // Main signal path
-        this.triangle.connect(this.gain);
-        this.gain.connect(this.outputs[0]);
-
-        // Envelope
-        this.env.connect(this.gain, 0, 1);
-    }
-    extend(Synth, AudioletGroup);
-
-    var audiolet=new Audiolet();
-    var synth = new Synth(audiolet, freq[bKeyIndex]);
-    synth.connect(audiolet.output);
-  }
-  bKeyIndex++;
-  
-}
-
-Piano.prototype.update=function(){
-  this.updateWks();
-  //this.updateBks();
+Piano.prototype.update = function(){
 }
 
 function loop(){

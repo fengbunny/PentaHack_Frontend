@@ -27,7 +27,7 @@
 	line-height: 1;
 	margin: 0;
 	letter-spacing: -0.025em;
-	color: #f25346;
+	color: #d1b790;
 }
 
 .header h1 span {
